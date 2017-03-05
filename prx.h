@@ -17,6 +17,10 @@ struct XMBAction
 	action_callback callback;
 };
 
+void* getNIDfunc(const char* vsh_module, uint32_t fnid);
+
+void vshtask_showMessage(const char* msg);
+
 void parse_command_string(char command_name[32], char* command_param, char* to_parse);
 struct XMBAction* prxmb_action_find(const char name[32]);
 

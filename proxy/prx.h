@@ -13,6 +13,5 @@ int prx_exit(void);
 
 void* getNIDfunc(const char* vsh_module, uint32_t fnid);
 
-void vshtask_showMessage(const char* msg);
 int paf_setInterface(int view, int interface, void* handler);
 int paf_setInterface2(int view, int interface, void* handler);

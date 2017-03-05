@@ -35,16 +35,6 @@ void* getNIDfunc(const char* vsh_module, uint32_t fnid)
 	return 0;
 }
 
-void vshtask_showMessage(const char* msg)
-{
-	int (*vshtask_notify)(int, const char*) = getNIDfunc("vshtask", 0xA02D46E7);
-
-	if(vshtask_notify)
-	{
-		vshtask_notify(0, msg);
-	}
-}
-
 int paf_setInterface(int view, int interface, void* handler)
 {
 	int (*plugin_SetInterface)(int v, int i, void* h) = getNIDfunc("paf", 0xA1DC401);
