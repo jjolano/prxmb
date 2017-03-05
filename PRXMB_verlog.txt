@@ -1,0 +1,28 @@
+#
+#  Sun Mar 05 05:54:49 2017
+#  PRXMB: attr=0x1, nvar=0, nfunc=3, ntls=0 levels=0x1 stubfilename=libprxmb_prx
+#      generate by ppu-lv2-prx-libgen.exe (1.14.4.5 2010-03-11 20:39:44, 2008-04-01 20:38:42)
+#  target_version_check on,  removed_entry_check on,  logging on
+#  log_version_update on
+#
+version 0x0001
+#
+log_version_update on
+logging on
+removed_entry_check on
+target_version_check on
+  0x511ed5a1 F/0 176 d849e57fd47d85f7ec5c5d37d4ad4a2dfd8a4d87 .text prxmb_action_hook
+  0x5beb9d0a F/0 228 bd6152f6847b9521f82b54ddac049b609f42a012 .text prxmb_action_unhook
+  0x83809f25 F/0 188 cf7fc5cf26c28a64444d9c8ccd3867a1923ebefa .text prxmb_action_call
+#
+#  Sun Mar 05 07:07:20 2017
+#  PRXMB: attr=0x1, nvar=0, nfunc=3, ntls=0 levels=0x1 stubfilename=libprxmb_prx
+#      generate by ppu-lv2-prx-libgen.exe (1.14.4.5 2010-03-11 20:39:44, 2008-04-01 20:38:42)
+#  target_version_check on,  removed_entry_check on,  logging on
+#  log_version_update on
+#
+version 0x0002
+#
+  0x511ed5a1 F/0 176 8a192a7ea120d131814edb9158534727a0ba6582 .text prxmb_action_hook
+  0x5beb9d0a F/0 228 4146099014748e0197e833392c5b97cbbcda53d3 .text prxmb_action_unhook
+  0x83809f25 F/0 188 61ca6c3460ac684f8d94627199c26d3232cfb39a .text prxmb_action_call

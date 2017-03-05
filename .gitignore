@@ -1,0 +1,17 @@
+*.o
+*.SFO
+*.sfo
+*.BIN
+*.bin
+*.pkg
+*.elf
+*.zip
+*.a
+*.self
+.vscode/
+objs/
+*.sprx
+*.prx
+*.sym
+*_verlog.txt
+*.d
