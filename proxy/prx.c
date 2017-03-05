@@ -5,6 +5,14 @@ SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
 SYS_MODULE_EXIT(prx_exit);
 
+void* if_proxy_func[4] =
+{
+	(void*) if_init,
+	(int* ) if_start,
+	(int* ) if_stop,
+	(int* ) if_exit
+};
+
 void* getNIDfunc(const char* vsh_module, uint32_t fnid)
 {
 	uint32_t table = (*(uint32_t*)0x1008C) + 0x984; // vsh table address
@@ -61,14 +69,6 @@ int paf_setInterface2(int view, int interface, void* handler)
 
 int prx_start(size_t args, void *argp)
 {
-	void *if_proxy_func[4] =
-	{
-		(void*) if_init,
-		(int* ) if_start,
-		(int* ) if_stop,
-		(int* ) if_exit
-	};
-
 	paf_setInterface2(*(unsigned int*) argp, 1, (void*) if_proxy_func);
 	return SYS_PRX_RESIDENT;
 }
