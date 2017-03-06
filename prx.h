@@ -8,8 +8,10 @@
 #include <sys/ppu_thread.h>
 #include <sys/timer.h>
 
-#include "vsh_exports.h"
 #include "prxmb.h"
+#include "cobra/storage.h"
+
+#include "vsh_exports.h"
 
 struct XMBAction
 {

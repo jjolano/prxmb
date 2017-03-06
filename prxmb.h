@@ -5,6 +5,12 @@
 extern "C" {
 #endif
 
+/*
+ * It is imperative that these settings are in agreement among developers.
+ */
+#define VSHMODULE_SPRX		"/dev_flash/vsh/module/xai_plugin.sprx"
+#define PRXMB_PROXY_SPRX	"/dev_hdd0/prxmb_proxy.sprx"
+
 typedef void (*action_callback)(const char[32] /* action name */, const char* /* params */);
 
 /*
@@ -20,6 +26,8 @@ void prxmb_action_unhook(const char name[32]);
 
 /*
  * Internally used by proxy plugin to call hooks.
+ * The format of module-action should be the action name,
+ * optionally followed by a space character and parameter data.
  */
 void prxmb_action_call(const char* action);
 

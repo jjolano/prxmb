@@ -229,10 +229,14 @@ void prx_main(uint64_t ptr)
 {
 	prx_running = true;
 
+	sys_map_path(VSHMODULE_SPRX, PRXMB_PROXY_SPRX);
+
 	while(prx_running)
 	{
 		sys_timer_sleep(1);
 	}
+
+	sys_map_path(VSHMODULE_SPRX, NULL);
 
 	xmbactions_count = 0;
 	free(xmbactions);
