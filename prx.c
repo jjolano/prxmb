@@ -255,6 +255,9 @@ void prx_main(uint64_t ptr)
 	xmbactions_count = 0;
 	free(xmbactions);
 
+	// wait for other plugins to exit
+	sys_timer_sleep(1);
+
 	if(prx_running)
 	{
 		prx_running = false;
