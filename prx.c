@@ -2,11 +2,7 @@
 
 SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
-
 SYS_MODULE_EXIT(prx_exit);
-SYS_MODULE_REBOOT_BEFORE(prx_exit);
-SYS_MODULE_EPILOGUE(prx_exit);
-
 SYS_MODULE_INFO(PRXMB, 0, 0, 1);
 
 SYS_LIB_DECLARE_WITH_STUB(PRXMB, SYS_LIB_AUTO_EXPORT, libprxmb_prx);
@@ -71,8 +67,7 @@ void parse_command_string(char command_name[32], char* command_param, char* to_p
 
 	if(token != NULL)
 	{
-		strncpy(command_name, token, sizeof(command_name));
-		command_name[sizeof(command_name) - 1] = '\0';
+		strcpy(command_name, token);
 	}
 
 	token = strtok(NULL, " ");
@@ -88,6 +83,18 @@ void parse_command_string(char command_name[32], char* command_param, char* to_p
 
 		token = strtok(NULL, " ");
 	}
+}
+
+bool file_exists(const char* path)
+{
+	CellFsStat st;
+	
+	if(cellFsStat(path, &st) == 0)
+	{
+		return true;
+	}
+	
+	return false;
 }
 
 struct XMBAction* prxmb_action_find(const char name[32])
@@ -163,7 +170,8 @@ void prxmb_action_call(const char* action)
 	else
 	{
 		char msg[256];
-		sprintf(msg, "PRXMB unhandled action: %s", name);
+		int len = snprintf(msg, 255, "PRXMB unhandled action: %s (params: %s)", name, params);
+		msg[len] = '\0';
 
 		vshtask_showMessage(msg);
 	}
@@ -229,6 +237,11 @@ int prx_exit(void)
 void prx_main(uint64_t ptr)
 {
 	prx_running = true;
+
+	while(prx_running && !file_exists(PRXMB_PROXY_SPRX))
+	{
+		sys_timer_sleep(1);
+	}
 
 	sys_map_path(VSHMODULE_SPRX, PRXMB_PROXY_SPRX);
 

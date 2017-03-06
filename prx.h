@@ -8,6 +8,8 @@
 #include <sys/ppu_thread.h>
 #include <sys/timer.h>
 
+#include <cell.h>
+
 #include "prxmb.h"
 #include "cobra/storage.h"
 

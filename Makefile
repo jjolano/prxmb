@@ -21,7 +21,7 @@ PPU_CFLAGS += -Wno-unused-parameter -fno-builtin-printf -nodefaultlibs
 PPU_PRX_LDFLAGS += $(PPU_CFLAGS)
 PPU_PRX_LDLIBDIR += -L./vsh/lib
 
-PPU_PRX_LDLIBS += -lallocator_vsh -lstdc_vsh -lsysPrxForUser_vsh
+PPU_PRX_LDLIBS += -lfs_stub -lallocator_vsh -lstdc_vsh -lsysPrxForUser_vsh
 
 PPU_OPTIMIZE_LV = -Os
 PPU_INCDIRS += -I./vsh/include
