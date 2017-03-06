@@ -71,7 +71,8 @@ void parse_command_string(char command_name[32], char* command_param, char* to_p
 
 	if(token != NULL)
 	{
-		strcpy(command_name, token);
+		strncpy(command_name, token, sizeof(command_name));
+		command_name[sizeof(command_name) - 1] = '\0';
 	}
 
 	token = strtok(NULL, " ");
