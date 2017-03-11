@@ -238,12 +238,10 @@ void prx_main(uint64_t ptr)
 {
 	prx_running = true;
 
-	while(prx_running && !file_exists(PRXMB_PROXY_SPRX))
+	if(file_exists(PRXMB_PROXY_SPRX))
 	{
-		sys_timer_sleep(1);
+		sys_map_path(VSHMODULE_SPRX, PRXMB_PROXY_SPRX);
 	}
-
-	sys_map_path(VSHMODULE_SPRX, PRXMB_PROXY_SPRX);
 
 	while(prx_running)
 	{
