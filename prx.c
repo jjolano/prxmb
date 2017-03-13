@@ -17,46 +17,6 @@ int xmbactions_count = 0;
 sys_ppu_thread_t prx_tid;
 bool prx_running = false;
 
-void* getNIDfunc(const char* vsh_module, uint32_t fnid)
-{
-	uint32_t table = (*(uint32_t*)0x1008C) + 0x984; // vsh table address
-
-	while(((uint32_t)*(uint32_t*)table) != 0)
-	{
-		uint32_t* export_stru_ptr = (uint32_t*)*(uint32_t*)table;
-		const char* lib_name_ptr =  (const char*)*(uint32_t*)((char*)export_stru_ptr + 0x10);
-
-		if(strncmp(vsh_module, lib_name_ptr, strlen(lib_name_ptr)) == 0)
-		{
-			uint32_t lib_fnid_ptr = *(uint32_t*)((char*)export_stru_ptr + 0x14);
-			uint32_t lib_func_ptr = *(uint32_t*)((char*)export_stru_ptr + 0x18);
-			uint16_t count = *(uint16_t*)((char*)export_stru_ptr + 6); // number of exports
-
-			for(int i = 0; i < count; i++)
-			{
-				if(fnid == *(uint32_t*)((char*)lib_fnid_ptr + i*4))
-				{
-					return (void**)*((uint32_t*)(lib_func_ptr) + i);
-				}
-			}
-		}
-		
-		table += 4;
-	}
-
-	return 0;
-}
-
-void vshtask_showMessage(const char* msg)
-{
-	int (*vshtask_notify)(int, const char*) = getNIDfunc("vshtask", 0xA02D46E7);
-
-	if(vshtask_notify)
-	{
-		vshtask_notify(0, msg);
-	}
-}
-
 void parse_command_string(char command_name[32], char* command_param, char* to_parse)
 {
 	// initialize output
@@ -173,7 +133,7 @@ void prxmb_action_call(const char* action)
 		int len = snprintf(msg, 255, "PRXMB unhandled action: %s (params: %s)", name, params);
 		msg[len] = '\0';
 
-		vshtask_showMessage(msg);
+		vshtask_notify(msg);
 	}
 
 	free(params);
@@ -238,6 +198,12 @@ void prx_main(uint64_t ptr)
 {
 	prx_running = true;
 
+	int wait = 5;
+	while(wait-- && prx_running)
+	{
+		sys_timer_sleep(1);
+	}
+
 	if(file_exists(PRXMB_PROXY_SPRX))
 	{
 		sys_map_path(VSHMODULE_SPRX, PRXMB_PROXY_SPRX);
@@ -254,13 +220,8 @@ void prx_main(uint64_t ptr)
 	free(xmbactions);
 
 	// wait for other plugins to exit
+	sys_ppu_thread_yield();
 	sys_timer_sleep(1);
-
-	if(prx_running)
-	{
-		prx_running = false;
-		finalize_module();
-	}
 	
 	sys_ppu_thread_exit(0);
 }

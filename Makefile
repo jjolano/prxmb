@@ -12,8 +12,6 @@ CELL_SDK ?= /usr/local/cell
 CELL_MK_DIR ?= $(CELL_SDK)/samples/mk
 include $(CELL_MK_DIR)/sdk.makedef.mk
 
-OBJS_DIR = .
-
 PPU_SRCS = $(wildcard *.c)
 PPU_PRX_TARGET = prxmb.prx
 PPU_CFLAGS += -Wno-unused-parameter -fno-builtin-printf -nodefaultlibs
@@ -21,7 +19,8 @@ PPU_CFLAGS += -Wno-unused-parameter -fno-builtin-printf -nodefaultlibs
 PPU_PRX_LDFLAGS += $(PPU_CFLAGS)
 PPU_PRX_LDLIBDIR += -L./vsh/lib
 
-PPU_PRX_LDLIBS += -lfs_stub -lallocator_vsh -lstdc_vsh -lsysPrxForUser_vsh
+PPU_PRX_LDLIBS += -lfs_stub
+PPU_PRX_LDLIBS += -lallocator_export_stub -lstdc_export_stub -lsysPrxForUser_export_stub -lvshtask_export_stub
 
 PPU_OPTIMIZE_LV = -Os
 PPU_INCDIRS += -I./vsh/include
