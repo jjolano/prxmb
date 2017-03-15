@@ -129,6 +129,14 @@ void prxmb_action_call(const char* action)
 		return;
 	}
 
+	// wm_proxy compatibility: check if action starts with "http://127.0.0.1/"
+	if(str_startswith(action, "http://127.0.0.1/"))
+	{
+		// pass control to wm_proxy
+		wm_plugin_action(action + 16);
+		return;
+	}
+
 	char* action_temp = strdup(action);
 
 	char name[32];
@@ -221,7 +229,7 @@ void prx_main(uint64_t ptr)
 
 	if(file_exists(PRXMB_PROXY_SPRX))
 	{
-		sys_map_path(VSHMODULE_SPRX, PRXMB_PROXY_SPRX);
+		sys_map_path(VSHMODULE_SPRX, (char*) PRXMB_PROXY_SPRX);
 	}
 
 	while(prx_running)
