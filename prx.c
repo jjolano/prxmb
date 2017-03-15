@@ -137,6 +137,13 @@ void prxmb_action_call(const char* action)
 		return;
 	}
 
+	// sMAN compatibility: check for "sman" action
+	if(strcmp(action, "sman") == 0)
+	{
+		wm_plugin_action(action);
+		return;
+	}
+
 	char* action_temp = strdup(action);
 
 	char name[32];
