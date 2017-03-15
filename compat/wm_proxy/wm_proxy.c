@@ -11,62 +11,67 @@ int connect_to_webman(void)
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = 0x7F000001;	//127.0.0.1 (localhost)
 	sin.sin_port = htons(80);			//http port (80)
+
 	s = socket(AF_INET, SOCK_STREAM, 0);
-	if(s < 0) return -1;
+	if(s < 0)
+	{
+		return -1;
+	}
 
 	struct timeval tv;
 	tv.tv_usec = 0;
-	tv.tv_sec = 3;
 
+	tv.tv_sec = 3;
 	setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
 	if(connect(s, (struct sockaddr *)&sin, sizeof(sin)) < 0)
+	{
 		return -1;
+	}
+
+	tv.tv_sec = 60;
+	setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
 	return s;
 }
 
-void wm_plugin_action(const char* action)
+void sclose(int *socket_e)
+{
+	//if(*socket_e != -1)
+	{
+		shutdown(*socket_e, SHUT_RDWR);
+		socketclose(*socket_e);
+		//*socket_e = -1;
+	}
+}
+
+void wm_plugin_action(const char * action)
 {
 	int s = connect_to_webman();
 	if(s >= 0)
 	{
-		char proxy_action[256];
+		char proxy_action[512];
+		memcpy(proxy_action, "GET ", 4);
 
-		u32 i = 0;
-		u32 pa = 0;
+		u32 pa = 4;
 
-		proxy_action[pa++] = 'G';
-		proxy_action[pa++] = 'E';
-		proxy_action[pa++] = 'T';
-		proxy_action[pa++] = ' ';
-
-		if(action[0] != '/') i = 16;
-		if(action[i] == '/')
+		if(*action != '/') action += 16; // using http://127.0.0.1/
+		if(*action == '/')
 		{
-			for(;(i < strlen(action)) && (pa < 250); i++)
+			for(;*action && (pa < 505); action++)
 			{
-				if(action[i] != 0x20)
-					proxy_action[pa++] = action[i];
+				if(*action != 0x20)
+					proxy_action[pa++] = *action;
 				else
 				{
-					proxy_action[pa++] = '%';
-					proxy_action[pa++] = '2';
-					proxy_action[pa++] = '0';
+					memcpy(proxy_action + pa, "%20", 3); pa += 3;
 				}
 			}
 
-			proxy_action[pa++] = '\r';
-			proxy_action[pa++] = '\n';
-			proxy_action[pa] = 0;
-
+			memcpy(proxy_action + pa, "\r\n\0", 3); pa +=2;
 			send(s, proxy_action, pa, 0);
 		}
-		else
-			send(s, action, strlen(action), 0);
-
-		shutdown(s, SHUT_RDWR);
-		socketclose(s);
+		sclose(&s);
 	}
-	else vshtask_notify("Plugin not ready!");
+	else vshtask_notify("webMAN not ready!");
 }
