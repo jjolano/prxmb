@@ -1,6 +1,6 @@
 #include "prx.h"
+
 #include "compat/wm_proxy/wm_proxy.h"
-#include "compat/cfw_settings/compat.h"
 
 SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
@@ -121,17 +121,11 @@ void prxmb_action_unhook(const char name[32])
 
 void prxmb_action_call(const char* action)
 {
-	// wm_proxy compatibility: check if action starts with "http://127.0.0.1/"
-	if(str_startswith(action, "http://127.0.0.1/"))
+	// wm_proxy compatibility: check if action starts with "/"
+	if(str_startswith(action, "/"))
 	{
 		// pass control to wm_proxy
 		wm_plugin_action(action);
-		return;
-	}
-
-	// cfw_settings compatibility: let cfw_settings parse module_action first
-	if(cfw_settings_action(action))
-	{
 		return;
 	}
 
