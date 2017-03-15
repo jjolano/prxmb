@@ -1,4 +1,5 @@
 #include "prx.h"
+#include "compat/wm_proxy/wm_proxy.h"
 
 SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
@@ -55,6 +56,11 @@ bool file_exists(const char* path)
 	}
 	
 	return false;
+}
+
+bool str_startswith(const char* str, const char* sub)
+{
+	return strncmp(str, sub, strlen(sub)) == 0;
 }
 
 struct XMBAction* prxmb_action_find(const char name[32])
@@ -114,6 +120,14 @@ void prxmb_action_unhook(const char name[32])
 
 void prxmb_action_call(const char* action)
 {
+	// wm_proxy compatibility: check if action starts with "http://127.0.0.1/"
+	if(str_startswith(action, "http://127.0.0.1/"))
+	{
+		// pass control to wm_proxy
+		wm_plugin_action(action);
+		return;
+	}
+
 	char* action_temp = strdup(action);
 
 	char name[32];
