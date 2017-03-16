@@ -113,10 +113,8 @@ void prxmb_action_unhook(const char name[32])
 	xmbactions = (struct XMBAction*) realloc(xmbactions, --xmbactions_count * sizeof(struct XMBAction));
 }
 
-void prxmb_action_call_thread(uint64_t action_ptr)
+void prxmb_action_call(const char* action)
 {
-	char* action = (char*) (uintptr_t) action_ptr;
-
 	// wm_proxy compatibility
 	if(str_startswith(action, "/") || strcmp(action, "sman") == 0)
 	{
@@ -153,17 +151,6 @@ void prxmb_action_call_thread(uint64_t action_ptr)
 	}
 
 	free(params);
-
-	sys_ppu_thread_exit(0);
-}
-
-void prxmb_action_call(const char* action)
-{
-	sys_ppu_thread_t action_tid;
-	sys_ppu_thread_create(&action_tid, prxmb_action_call_thread, (uint64_t) (uintptr_t) action, 1000, 0x1000, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb_action");
-
-	/*uint64_t exit_code;
-	sys_ppu_thread_join(action_tid, &exit_code);*/
 }
 
 inline void _sys_ppu_thread_exit(uint64_t val)
@@ -254,7 +241,7 @@ void prx_main(uint64_t ptr)
 
 int prx_start(size_t args, void* argv)
 {
-	sys_ppu_thread_create(&prx_tid, prx_main, 0, 1001, 0x400, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb");
+	sys_ppu_thread_create(&prx_tid, prx_main, 0, 1001, 0x1000, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb");
 	_sys_ppu_thread_exit(SYS_PRX_START_OK);
 	return SYS_PRX_START_OK;
 }

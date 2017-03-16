@@ -26,7 +26,7 @@ void wm_plugin_action(const char* action)
 
 	setsockopt(wm_sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
-	if(wm_sock == -1 || connect(wm_sock, (struct sockaddr*) &wm_addr, sizeof(wm_addr)) == -1)
+	if(wm_sock <= 0 || connect(wm_sock, (struct sockaddr*) &wm_addr, sizeof(wm_addr)) != 0)
 	{
 		vshtask_notify("wm_proxy: Failed to communicate with webMAN.");
 		return;
@@ -62,7 +62,11 @@ void wm_plugin_action(const char* action)
 	strcat(buffer, "\r\n");
 
 	// Send request to socket
-	send(wm_sock, buffer, strlen(buffer), 0);
+	if(send(wm_sock, buffer, strlen(buffer), 0) <= 0)
+	{
+		vshtask_notify("wm_proxy: Failed to communicate with webMAN.");
+	}
+
 	shutdown(wm_sock, SHUT_RDWR);
 	socketclose(wm_sock);
 
