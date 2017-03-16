@@ -19,34 +19,6 @@ int xmbactions_count = 0;
 sys_ppu_thread_t prx_tid;
 bool prx_running = false;
 
-void parse_command_string(char command_name[32], char* command_param, char* to_parse)
-{
-	// initialize output
-	command_name[0] = '\0';
-	command_param[0] = '\0';
-
-	char* token = strtok(to_parse, " ");
-
-	if(token != NULL)
-	{
-		strcpy(command_name, token);
-	}
-
-	token = strtok(NULL, " ");
-
-	while(token != NULL)
-	{
-		if(command_param[0] != '\0')
-		{
-			strcat(command_param, " ");
-		}
-
-		strcat(command_param, token);
-
-		token = strtok(NULL, " ");
-	}
-}
-
 bool file_exists(const char* path)
 {
 	CellFsStat st;
@@ -58,7 +30,7 @@ bool str_startswith(const char* str, const char* sub)
 	return strncmp(str, sub, strlen(sub)) == 0;
 }
 
-struct XMBAction* prxmb_action_find(const char name[32])
+struct XMBAction* prxmb_action_find(const char name[MAX_ACT_NAMELEN])
 {
 	int i;
 	for(i = 0; i < xmbactions_count; ++i)
@@ -74,7 +46,7 @@ struct XMBAction* prxmb_action_find(const char name[32])
 	return NULL;
 }
 
-int prxmb_action_hook(const char name[32], action_callback callback)
+int prxmb_action_hook(const char name[MAX_ACT_NAMELEN], action_callback callback)
 {
 	if(prxmb_action_find(name) != NULL)
 	{
@@ -91,7 +63,7 @@ int prxmb_action_hook(const char name[32], action_callback callback)
 	return 0;
 }
 
-void prxmb_action_unhook(const char name[32])
+void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN])
 {
 	int i;
 	for(i = 0; i < xmbactions_count; ++i)
@@ -130,10 +102,29 @@ void prxmb_action_call(const char* action)
 		return;
 	}
 
-	char name[32];
-	char* params = (char*) malloc(strlen(action) * sizeof(char));
+	char name[MAX_ACT_NAMELEN];
+	char* params = strchr((char*) action, ' ');
+	int namelen = 0;
 
-	parse_command_string(name, params, action);
+	if(params != NULL)
+	{
+		namelen = params - action;
+		params++;
+	}
+	else
+	{
+		namelen = strlen(action);
+	}
+
+	if(namelen > MAX_ACT_NAMELEN)
+	{
+		// warning
+		vshtask_notify("PRXMB warning: action name exceeds maximum length");
+		namelen = MAX_ACT_NAMELEN;
+	}
+
+	strncpy(name, action, namelen);
+	name[namelen - 1] = '\0';
 
 	struct XMBAction* xmbaction = prxmb_action_find(name);
 
@@ -143,14 +134,20 @@ void prxmb_action_call(const char* action)
 	}
 	else
 	{
-		char msg[256];
-		int len = snprintf(msg, 255, "PRXMB unhandled action: %s (params: %s)", name, params);
-		msg[len] = '\0';
+		char* msg = (char*) malloc((strlen(action) + 32) * sizeof(char));
+
+		if(params == NULL)
+		{
+			sprintf(msg, "PRXMB unhandled action: %s", name);
+		}
+		else
+		{
+			sprintf(msg, "PRXMB unhandled action: %s (params: %s)", name, params);
+		}
 
 		vshtask_notify(msg);
+		free(msg);
 	}
-
-	free(params);
 }
 
 inline void _sys_ppu_thread_exit(uint64_t val)

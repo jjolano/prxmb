@@ -17,15 +17,14 @@
 
 struct XMBAction
 {
-	char name[32];
+	char name[MAX_ACT_NAMELEN];
 	action_callback callback;
 };
 
-void parse_command_string(char command_name[32], char* command_param, char* to_parse);
 bool file_exists(const char* path);
 bool str_startswith(const char* str, const char* sub);
 
-struct XMBAction* prxmb_action_find(const char name[32]);
+struct XMBAction* prxmb_action_find(const char name[MAX_ACT_NAMELEN]);
 
 inline void _sys_ppu_thread_exit(uint64_t val);
 void finalize_module(void);

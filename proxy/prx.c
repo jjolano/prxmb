@@ -13,7 +13,7 @@ void* if_proxy_func[4] =
 	(void*) if_exit
 };
 
-int prx_start(size_t args, void *argp)
+int prx_start(size_t args, void* argp)
 {
 	plugin_setInterface2(*(unsigned int*) argp, 1, if_proxy_func);
 	return SYS_PRX_RESIDENT;

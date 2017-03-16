@@ -11,18 +11,20 @@ extern "C" {
 #define VSHMODULE_SPRX		"/dev_flash/vsh/module/idle_plugin.sprx"
 #define PRXMB_PROXY_SPRX	"/dev_hdd0/tmp/prxmb_proxy.sprx"
 
-typedef void (*action_callback)(const char[32] /* action name */, const char* /* params */);
+#define MAX_ACT_NAMELEN		32
+
+typedef void (*action_callback)(const char[MAX_ACT_NAMELEN] /* action name */, const char* /* params */);
 
 /*
  * Hook a function for specified action on proxy plugin.
  * Returns 0 if successfully hooked, or -1 if action was already hooked.
  */
-int prxmb_action_hook(const char name[32], action_callback callback);
+int prxmb_action_hook(const char name[MAX_ACT_NAMELEN], action_callback callback);
 
 /*
  * You should always unhook all your actions when your plugin is unloading.
  */
-void prxmb_action_unhook(const char name[32]);
+void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN]);
 
 /*
  * Internally used by proxy plugin to call hooks.

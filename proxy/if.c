@@ -3,13 +3,11 @@
 
 #include "../prxmb.h"
 
-void* if_act0[3] = { if_action, 0, 0 };
-//void* if_mod0 = 0;
+void* if_act0[3] = { prxmb_action_call, 0, 0 };
 
 void if_init(int view)
 {
 	plugin_setInterface(view, PRX_ACT0, if_act0);
-	//plugin_setInterface(view, PRX_MOD0, if_mod0);
 }
 
 int if_start(void* view)
@@ -25,9 +23,4 @@ int if_stop(void)
 void if_exit(void)
 {
 	
-}
-
-void if_action(const char* action)
-{
-	prxmb_action_call(action);
 }
