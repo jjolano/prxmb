@@ -124,7 +124,7 @@ void prxmb_action_call(const char* action)
 	}
 
 	strncpy(name, action, namelen);
-	name[namelen - 1] = '\0';
+	name[namelen] = '\0';
 
 	struct XMBAction* xmbaction = prxmb_action_find(name);
 
