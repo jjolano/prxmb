@@ -26,6 +26,7 @@ bool file_exists(const char* path);
 bool str_startswith(const char* str, const char* sub);
 
 struct XMBAction* prxmb_action_find(const char name[32]);
+void prxmb_action_call_thread(uint64_t action_ptr);
 
 inline void _sys_ppu_thread_exit(uint64_t val);
 void finalize_module(void);

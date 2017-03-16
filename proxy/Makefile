@@ -17,12 +17,13 @@ PPU_PRX_TARGET = prxmb_proxy.prx
 PPU_CFLAGS += -Wno-unused-parameter -fno-builtin-printf -nodefaultlibs
 
 PPU_PRX_LDFLAGS += $(PPU_CFLAGS)
-PPU_PRX_LDLIBDIR += -L../
+PPU_PRX_LDLIBDIR += -L../ -L../vsh/lib
 
 PPU_PRX_LDLIBS += -lprxmb_prx
+PPU_PRX_LDLIBS += -lpaf_export_stub
 
 PPU_OPTIMIZE_LV = -Os
-PPU_INCDIRS += -I../
+PPU_INCDIRS += -I. -I../ -I../vsh/include -I../include
 
 all: $(PPU_PRX_TARGET)
 	$(PPU_PRX_STRIP) --strip-debug --strip-section-header $<

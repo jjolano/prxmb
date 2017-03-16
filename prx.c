@@ -50,13 +50,7 @@ void parse_command_string(char command_name[32], char* command_param, char* to_p
 bool file_exists(const char* path)
 {
 	CellFsStat st;
-	
-	if(cellFsStat(path, &st) == 0)
-	{
-		return true;
-	}
-	
-	return false;
+	return cellFsStat(path, &st) == 0;
 }
 
 bool str_startswith(const char* str, const char* sub)
@@ -119,17 +113,18 @@ void prxmb_action_unhook(const char name[32])
 	xmbactions = (struct XMBAction*) realloc(xmbactions, --xmbactions_count * sizeof(struct XMBAction));
 }
 
-void prxmb_action_call(const char* action)
+void prxmb_action_call_thread(uint64_t action_ptr)
 {
-	// wm_proxy compatibility: check if action starts with "/"
-	if(str_startswith(action, "/"))
+	char* action = (char*) (uintptr_t) action_ptr;
+
+	// wm_proxy compatibility
+	if(str_startswith(action, "/") || strcmp(action, "sman") == 0)
 	{
 		// pass control to wm_proxy
 		wm_plugin_action(action);
 		return;
 	}
 
-	// wm_proxy compatibility: check if action starts with "http://127.0.0.1/"
 	if(str_startswith(action, "http://127.0.0.1/"))
 	{
 		// pass control to wm_proxy
@@ -137,19 +132,10 @@ void prxmb_action_call(const char* action)
 		return;
 	}
 
-	// sMAN compatibility: check for "sman" action
-	if(strcmp(action, "sman") == 0)
-	{
-		wm_plugin_action(action);
-		return;
-	}
-
-	char* action_temp = strdup(action);
-
 	char name[32];
-	char* params = (char*) malloc(1024 * sizeof(char));
+	char* params = (char*) malloc(strlen(action) * sizeof(char));
 
-	parse_command_string(name, params, action_temp);
+	parse_command_string(name, params, action);
 
 	struct XMBAction* xmbaction = prxmb_action_find(name);
 
@@ -167,7 +153,17 @@ void prxmb_action_call(const char* action)
 	}
 
 	free(params);
-	free(action_temp);
+
+	sys_ppu_thread_exit(0);
+}
+
+void prxmb_action_call(const char* action)
+{
+	sys_ppu_thread_t action_tid;
+	sys_ppu_thread_create(&action_tid, prxmb_action_call_thread, (uint64_t) (uintptr_t) action, 1000, 0x1000, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb_action");
+
+	/*uint64_t exit_code;
+	sys_ppu_thread_join(action_tid, &exit_code);*/
 }
 
 inline void _sys_ppu_thread_exit(uint64_t val)
@@ -226,16 +222,13 @@ int prx_exit(void)
 
 void prx_main(uint64_t ptr)
 {
-	prx_running = true;
+	bool redirect = false;
 
-	int wait = 5;
-	while(wait-- && prx_running)
-	{
-		sys_timer_sleep(1);
-	}
+	prx_running = true;
 
 	if(file_exists(PRXMB_PROXY_SPRX))
 	{
+		redirect = true;
 		sys_map_path(VSHMODULE_SPRX, (char*) PRXMB_PROXY_SPRX);
 	}
 
@@ -244,7 +237,10 @@ void prx_main(uint64_t ptr)
 		sys_timer_sleep(1);
 	}
 
-	sys_map_path(VSHMODULE_SPRX, NULL);
+	if(redirect)
+	{
+		sys_map_path(VSHMODULE_SPRX, NULL);
+	}
 
 	xmbactions_count = 0;
 	free(xmbactions);
@@ -258,7 +254,7 @@ void prx_main(uint64_t ptr)
 
 int prx_start(size_t args, void* argv)
 {
-	sys_ppu_thread_create(&prx_tid, prx_main, 0, 1000, 0x1000, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb");
+	sys_ppu_thread_create(&prx_tid, prx_main, 0, 1001, 0x400, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb");
 	_sys_ppu_thread_exit(SYS_PRX_START_OK);
 	return SYS_PRX_START_OK;
 }
