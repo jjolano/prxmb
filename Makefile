@@ -14,9 +14,9 @@ include $(CELL_MK_DIR)/sdk.makedef.mk
 
 PPU_SRCS = $(wildcard compat/*/*.c) $(wildcard util/*.c) $(wildcard *.c)
 PPU_PRX_TARGET = prxmb.prx
-PPU_CFLAGS += -Wno-unused-parameter -fno-builtin-printf
+PPU_CFLAGS += -Wno-unused-parameter -ffunction-sections -fdata-sections -fno-builtin-printf
 
-PPU_PRX_LDFLAGS += -nodefaultlibs
+PPU_PRX_LDFLAGS += -Wl,--strip-unused-data -nodefaultlibs
 PPU_PRX_LDLIBDIR += -Lvsh/lib
 
 PPU_PRX_LDLIBS += -lfs_stub -lrtc_stub -lsyscall
