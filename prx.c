@@ -218,7 +218,6 @@ void prx_main(uint64_t ptr)
 
 	while(prx_running)
 	{
-		sys_ppu_thread_yield();
 		sys_timer_sleep(1);
 	}
 
@@ -231,15 +230,14 @@ void prx_main(uint64_t ptr)
 	free(xmbactions);
 
 	// wait for other plugins to exit
-	sys_ppu_thread_yield();
-	sys_timer_sleep(1);
+	sys_timer_sleep(2);
 	
 	sys_ppu_thread_exit(0);
 }
 
 int prx_start(size_t args, void* argv)
 {
-	sys_ppu_thread_create(&prx_tid, prx_main, 0, 1001, 0x1000, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb");
+	sys_ppu_thread_create(&prx_tid, prx_main, 0, 1001, 0x2000, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb");
 	_sys_ppu_thread_exit(SYS_PRX_START_OK);
 	return SYS_PRX_START_OK;
 }
