@@ -158,8 +158,8 @@ inline void _sys_ppu_thread_exit(uint64_t val)
 void finalize_module(void)
 {
 	uint64_t meminfo[5];
-
-	sys_prx_id_t prx = sys_prx_get_module_id_by_address(finalize_module);
+	
+	sys_prx_id_t prx = sys_prx_get_my_module_id();
 
 	meminfo[0] = 0x28;
 	meminfo[1] = 2;
@@ -170,7 +170,7 @@ void finalize_module(void)
 
 void prx_unload(void)
 {
-	sys_prx_id_t prx = sys_prx_get_module_id_by_address(prx_unload);
+	sys_prx_id_t prx = sys_prx_get_my_module_id();
 	system_call_3(483, prx, 0, NULL);
 }
 
@@ -218,6 +218,7 @@ void prx_main(uint64_t ptr)
 
 	while(prx_running)
 	{
+		sys_ppu_thread_yield();
 		sys_timer_sleep(1);
 	}
 
