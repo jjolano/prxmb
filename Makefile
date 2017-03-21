@@ -12,6 +12,8 @@ CELL_SDK ?= /usr/local/cell
 CELL_MK_DIR ?= $(CELL_SDK)/samples/mk
 include $(CELL_MK_DIR)/sdk.makedef.mk
 
+OBJS_DIR = .
+
 PPU_SRCS = $(wildcard addons/*/*.c) $(wildcard util/*.c) $(wildcard *.c)
 PPU_PRX_TARGET = prxmb.prx
 PPU_CFLAGS += -Wno-unused-parameter -ffunction-sections -fdata-sections -fno-builtin-printf
