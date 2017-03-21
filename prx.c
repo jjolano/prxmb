@@ -1,7 +1,7 @@
 #include "prx.h"
 #include "cobra/storage.h"
 
-#include "compat/wm_proxy/wm_proxy.h"
+#include "addons/wm_proxy/wm_proxy.h"
 
 SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
