@@ -18,7 +18,7 @@ int if_stop(void)
 	return SYS_PRX_STOP_OK;
 }
 
-int if_exit(void)
+void if_exit(void)
 {
-	return 0;
+	
 }
