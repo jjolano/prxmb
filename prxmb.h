@@ -1,9 +1,9 @@
 #ifndef __PRXMB_INC__
 #define __PRXMB_INC__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stddef.h>
+
+#define prxmb_running() (sys_prx_get_module_id_by_name("PRXMB", 0, NULL) > 0)
 
 /*
  * It is imperative that these settings are in agreement among developers.
@@ -12,6 +12,10 @@ extern "C" {
 #define PRXMB_PROXY_SPRX	"/dev_hdd0/tmp/prxmb_proxy.sprx"
 
 #define MAX_ACT_NAMELEN		32
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef void (*action_callback)(const char[MAX_ACT_NAMELEN] /* action name */, const char* /* params */);
 
@@ -28,8 +32,8 @@ void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN]);
 
 /*
  * Internally used by proxy plugin to call hooks.
- * The format of module-action should be the action name,
- * optionally followed by a space character and parameter data.
+ * The format of module-action should be the action name
+ * and parameter data (if necessary) separated by a space.
  */
 void prxmb_action_call(const char* action);
 

@@ -196,6 +196,7 @@ int prx_stop(void)
 {
 	prxmb_free();
 	finalize_module();
+	
 	_sys_ppu_thread_exit(0);
 	return SYS_PRX_STOP_OK;
 }
@@ -204,6 +205,7 @@ int prx_exit(void)
 {
 	prxmb_free();
 	prx_unload();
+
 	_sys_ppu_thread_exit(0);
 	return SYS_PRX_STOP_OK;
 }

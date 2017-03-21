@@ -5,7 +5,9 @@
 #include <inttypes.h>
 
 #include "if.h"
+#include "../prxmb.h"
 
+void prxmb_if_action(const char* action);
 int prx_start(size_t args, void* argp);
 int prx_stop(void);
 int prx_exit(void);

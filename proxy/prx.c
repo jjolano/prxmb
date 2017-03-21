@@ -5,13 +5,15 @@ SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
 SYS_MODULE_EXIT(prx_exit);
 
-void* if_proxy_func[4] =
+void* if_proxy_func[4] = { if_init, if_start, if_stop, if_exit };
+
+void prxmb_if_action(const char* action)
 {
-	(void*) if_init,
-	(int* ) if_start,
-	(int* ) if_stop,
-	(int* ) if_exit
-};
+	if(prxmb_running())
+	{
+		prxmb_action_call(action);
+	}
+}
 
 int prx_start(size_t args, void* argp)
 {
