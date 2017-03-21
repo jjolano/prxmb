@@ -1,4 +1,5 @@
 #include "prx.h"
+#include "cobra/storage.h"
 
 #include "compat/wm_proxy/wm_proxy.h"
 
@@ -17,7 +18,7 @@ struct XMBAction* xmbactions = NULL;
 int xmbactions_count = 0;
 
 sys_ppu_thread_t prx_tid;
-bool prx_running = false;
+bool redirect = false;
 
 bool file_exists(const char* path)
 {
@@ -150,6 +151,23 @@ void prxmb_action_call(const char* action)
 	}
 }
 
+void prxmb_free(void)
+{
+	xmbactions_count = 0;
+
+	if(xmbactions != NULL)
+	{
+		free(xmbactions);
+		xmbactions = NULL;
+	}
+
+	if(redirect)
+	{
+		redirect = false;
+		sys_map_path(VSHMODULE_SPRX, NULL);
+	}
+}
+
 inline void _sys_ppu_thread_exit(uint64_t val)
 {
 	system_call_1(41, val);
@@ -176,68 +194,28 @@ void prx_unload(void)
 
 int prx_stop(void)
 {
-	if(prx_running)
-	{
-		prx_running = false;
-
-		uint64_t prx_exitcode;
-		sys_ppu_thread_join(prx_tid, &prx_exitcode);
-	}
-
+	prxmb_free();
 	finalize_module();
-	_sys_ppu_thread_exit(SYS_PRX_STOP_OK);
+	_sys_ppu_thread_exit(0);
 	return SYS_PRX_STOP_OK;
 }
 
 int prx_exit(void)
 {
-	if(prx_running)
-	{
-		prx_running = false;
-
-		uint64_t prx_exitcode;
-		sys_ppu_thread_join(prx_tid, &prx_exitcode);
-	}
-
+	prxmb_free();
 	prx_unload();
-	_sys_ppu_thread_exit(SYS_PRX_STOP_OK);
+	_sys_ppu_thread_exit(0);
 	return SYS_PRX_STOP_OK;
 }
 
-void prx_main(uint64_t ptr)
+int prx_start(size_t args, void* argv)
 {
-	bool redirect = false;
-
-	prx_running = true;
-
 	if(file_exists(PRXMB_PROXY_SPRX))
 	{
 		redirect = true;
 		sys_map_path(VSHMODULE_SPRX, (char*) PRXMB_PROXY_SPRX);
 	}
 
-	while(prx_running)
-	{
-		sys_timer_sleep(1);
-	}
-
-	if(redirect)
-	{
-		sys_map_path(VSHMODULE_SPRX, NULL);
-	}
-
-	xmbactions_count = 0;
-	free(xmbactions);
-
-	// wait for other plugins to exit
-	sys_timer_sleep(2);
-	
-	sys_ppu_thread_exit(0);
-}
-
-int prx_start(size_t args, void* argv)
-{
-	sys_ppu_thread_create(&prx_tid, prx_main, 0, 1001, 0x2000, SYS_PPU_THREAD_CREATE_JOINABLE, (char*) "prxmb");
-	_sys_ppu_thread_exit(SYS_PRX_START_OK);
+	_sys_ppu_thread_exit(0);
 	return SYS_PRX_START_OK;
 }
