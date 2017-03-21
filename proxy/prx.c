@@ -10,7 +10,7 @@ void* if_proxy_func[4] =
 	(void*) if_init,
 	(int* ) if_start,
 	(int* ) if_stop,
-	(void*) if_exit
+	(int* ) if_exit
 };
 
 int prx_start(size_t args, void* argp)

@@ -22,7 +22,7 @@ PPU_PRX_LDFLAGS += -Wl,--strip-unused-data -nodefaultlibs
 PPU_PRX_LDLIBDIR += -L../ -L../vsh/lib
 
 PPU_PRX_LDLIBS += -lprxmb_prx
-PPU_PRX_LDLIBS += -lpaf_export_stub
+PPU_PRX_LDLIBS += -lpaf_export_stub -lsysPrxForUser_export_stub
 
 PPU_OPTIMIZE_LV = -Os
 PPU_INCDIRS += -I. -I../ -I../vsh/include -I../include
