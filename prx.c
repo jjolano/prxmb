@@ -120,7 +120,7 @@ void prxmb_action_call(const char* action)
 	if(namelen > MAX_ACT_NAMELEN)
 	{
 		// warning
-		vshtask_notify("PRXMB warning: action name exceeds maximum length");
+		vshtask_notify("Warning: PRXMB action name exceeds maximum length.");
 		namelen = MAX_ACT_NAMELEN;
 	}
 
