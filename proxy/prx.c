@@ -9,7 +9,7 @@ void* if_proxy_func[4] = { if_init, if_start, if_stop, if_exit };
 
 void prxmb_if_action(const char* action)
 {
-	if(prxmb_running())
+	if(prxmb_action_call != NULL)
 	{
 		prxmb_action_call(action);
 	}
