@@ -98,7 +98,7 @@ void prxmb_action_call(const char* action)
 	strncpy(name, action, namelen);
 	name[namelen] = '\0';
 
-	struct PTNode* n = pttree_search(xmbactions, name);
+	struct PTNode* n = (xmbactions != NULL) ? pttree_search(xmbactions, name) : NULL;
 
 	if(n != NULL)
 	{
