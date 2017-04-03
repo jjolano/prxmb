@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
 #include <inttypes.h>
@@ -14,16 +15,9 @@
 #include "prxmb.h"
 #include "vsh_exports.h"
 
-struct XMBAction
-{
-	char name[MAX_ACT_NAMELEN];
-	action_callback callback;
-};
-
 bool file_exists(const char* path);
 bool str_startswith(const char* str, const char* sub);
 
-struct XMBAction* prxmb_action_find(const char name[MAX_ACT_NAMELEN]);
 void prxmb_free(void);
 
 inline void _sys_ppu_thread_exit(uint64_t val);

@@ -1,4 +1,5 @@
 #include "prx.h"
+#include "pftutils.h"
 #include "cobra/storage.h"
 
 #include "addons/wm_proxy/wm_proxy.h"
@@ -14,8 +15,7 @@ SYS_LIB_EXPORT(prxmb_action_hook, PRXMB);
 SYS_LIB_EXPORT(prxmb_action_unhook, PRXMB);
 SYS_LIB_EXPORT(prxmb_action_call, PRXMB);
 
-struct XMBAction* xmbactions = NULL;
-int xmbactions_count = 0;
+struct PTTree* xmbactions = NULL;
 
 sys_ppu_thread_t prx_tid;
 bool redirect = false;
@@ -31,59 +31,30 @@ bool str_startswith(const char* str, const char* sub)
 	return strncmp(str, sub, strlen(sub)) == 0;
 }
 
-struct XMBAction* prxmb_action_find(const char name[MAX_ACT_NAMELEN])
-{
-	int i;
-	for(i = 0; i < xmbactions_count; ++i)
-	{
-		struct XMBAction* xmbaction = &xmbactions[i];
-
-		if(strcmp(xmbaction->name, name) == 0)
-		{
-			return xmbaction;
-		}
-	}
-
-	return NULL;
-}
-
 int prxmb_action_hook(const char name[MAX_ACT_NAMELEN], action_callback callback)
 {
-	if(prxmb_action_find(name) != NULL)
+	if(xmbactions == NULL)
+	{
+		xmbactions = pttree_create();
+	}
+
+	if(pttree_search(xmbactions, name) != NULL)
 	{
 		return -1;
 	}
 
-	xmbactions = (struct XMBAction*) realloc(xmbactions, ++xmbactions_count * sizeof(struct XMBAction));
-
-	struct XMBAction* xmbaction = &xmbactions[xmbactions_count - 1];
-	
-	strcpy(xmbaction->name, name);
-	xmbaction->callback = callback;
-
+	pttree_insert(xmbactions, name, callback);
 	return 0;
 }
 
 void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN])
 {
-	int i;
-	for(i = 0; i < xmbactions_count; ++i)
+	struct PTNode* n;
+
+	if(xmbactions != NULL && (n = pttree_search(xmbactions, name)) != NULL)
 	{
-		struct XMBAction* xmbaction = &xmbactions[i];
-
-		if(strcmp(xmbaction->name, name) == 0)
-		{
-			break;
-		}
+		n->data_ptr = NULL;
 	}
-
-	if(i == xmbactions_count)
-	{
-		return;
-	}
-
-	memmove(&xmbactions[i], &xmbactions[i + 1], (xmbactions_count - i - 1) * sizeof(struct XMBAction));
-	xmbactions = (struct XMBAction*) realloc(xmbactions, --xmbactions_count * sizeof(struct XMBAction));
 }
 
 void prxmb_action_call(const char* action)
@@ -127,11 +98,16 @@ void prxmb_action_call(const char* action)
 	strncpy(name, action, namelen);
 	name[namelen] = '\0';
 
-	struct XMBAction* xmbaction = prxmb_action_find(name);
+	struct PTNode* n = pttree_search(xmbactions, name);
 
-	if(xmbaction != NULL)
+	if(n != NULL)
 	{
-		(*xmbaction->callback)(name, params);
+		action_callback callback = n->data_ptr;
+
+		if(callback != NULL)
+		{
+			(*callback)(name, params);
+		}
 	}
 	else
 	{
@@ -153,11 +129,9 @@ void prxmb_action_call(const char* action)
 
 void prxmb_free(void)
 {
-	xmbactions_count = 0;
-
 	if(xmbactions != NULL)
 	{
-		free(xmbactions);
+		pttree_destroy(xmbactions);
 		xmbactions = NULL;
 	}
 
