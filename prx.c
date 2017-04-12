@@ -18,7 +18,7 @@ SYS_LIB_EXPORT(prxmb_action_call, PRXMB);
 struct PTTree* xmbactions = NULL;
 
 sys_ppu_thread_t prx_tid;
-bool redirect = false;
+bool redirect;
 
 bool file_exists(const char* path)
 {
@@ -137,8 +137,8 @@ void prxmb_free(void)
 
 	if(redirect)
 	{
-		redirect = false;
 		sys_map_path(VSHMODULE_SPRX, NULL);
+		redirect = false;
 	}
 }
 
@@ -186,9 +186,10 @@ int prx_exit(void)
 
 int prx_start(size_t args, void* argv)
 {
-	if(file_exists(PRXMB_PROXY_SPRX))
+	redirect = file_exists(PRXMB_PROXY_SPRX);
+
+	if(redirect)
 	{
-		redirect = true;
 		sys_map_path(VSHMODULE_SPRX, (char*) PRXMB_PROXY_SPRX);
 	}
 
