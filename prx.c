@@ -14,8 +14,7 @@ SYS_LIB_EXPORT(prxmb_action_hook, PRXMB);
 SYS_LIB_EXPORT(prxmb_action_unhook, PRXMB);
 SYS_LIB_EXPORT(prxmb_action_call, PRXMB);
 
-struct PTTree* xmbactions = NULL;
-
+struct PTTree* xmbactions;
 sys_ppu_thread_t prx_tid;
 bool redirect;
 
@@ -25,7 +24,7 @@ bool file_exists(const char* path)
 	return cellFsStat(path, &st) == 0;
 }
 
-int prxmb_action_hook(const char name[MAX_ACT_NAMELEN], action_callback callback)
+int prxmb_action_hook(const char* name, action_callback callback)
 {
 	if(xmbactions == NULL)
 	{
@@ -41,7 +40,7 @@ int prxmb_action_hook(const char name[MAX_ACT_NAMELEN], action_callback callback
 	return 0;
 }
 
-void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN])
+void prxmb_action_unhook(const char* name)
 {
 	struct PTNode* n;
 
@@ -98,26 +97,9 @@ void prxmb_action_call(const char* action)
 		return;
 	}
 
-	char name[MAX_ACT_NAMELEN];
 	char* params = strchr((char*) action, ' ');
-	int namelen = 0;
-
-	if(params != NULL)
-	{
-		namelen = params - action;
-		params++;
-	}
-	else
-	{
-		namelen = strlen(action);
-	}
-
-	if(namelen > MAX_ACT_NAMELEN)
-	{
-		// warning
-		vshtask_notify("Warning: PRXMB action name exceeds maximum length.");
-		namelen = MAX_ACT_NAMELEN;
-	}
+	int namelen = params != NULL ? params - action : strlen(action);
+	char* name = malloc(namelen * sizeof(char));
 
 	strncpy(name, action, namelen);
 	name[namelen] = '\0';
@@ -143,12 +125,14 @@ void prxmb_action_call(const char* action)
 		}
 		else
 		{
-			sprintf(msg, "PRXMB unhandled action: %s (params: %s)", name, params);
+			sprintf(msg, "PRXMB unhandled action: %s (params: %s)", name, params + 1);
 		}
 
 		vshtask_notify(msg);
 		free(msg);
 	}
+
+	free(name);
 }
 
 void prxmb_free(void)
@@ -210,6 +194,7 @@ int prx_exit(void)
 
 int prx_start(size_t args, void* argv)
 {
+	xmbactions = NULL;
 	redirect = file_exists(PRXMB_PROXY_SPRX);
 
 	if(redirect)

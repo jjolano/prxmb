@@ -13,24 +13,22 @@
 #define PRXMB_PROXY_SPRX	"/dev_hdd0/tmp/prxmb_proxy.sprx"
 #define ADDON_DIR			"/dev_hdd0/tmp/prxmb"
 
-#define MAX_ACT_NAMELEN		32
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef void (*action_callback)(const char[MAX_ACT_NAMELEN] /* action name */, const char* /* params */);
+typedef void (*action_callback)(const char* /* action name */, const char* /* params */);
 
 /*
  * Hook a function for specified action on proxy plugin.
  * Returns 0 if successfully hooked, or -1 if action was already hooked.
  */
-int prxmb_action_hook(const char name[MAX_ACT_NAMELEN], action_callback callback);
+int prxmb_action_hook(const char* name, action_callback callback);
 
 /*
  * You should always unhook all your actions when your plugin is unloading.
  */
-void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN]);
+void prxmb_action_unhook(const char* name);
 
 /*
  * Internally used by proxy plugin to call hooks.
