@@ -1,6 +1,9 @@
 #include "prx.h"
+#include "cobra/cobra.h"
 
-SYS_MODULE_INFO(prxmb_proxy, 0, 0, 1);
+#include <cell.h>
+
+SYS_MODULE_INFO(prxmb_proxy, 0, 0, 2);
 SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
 SYS_MODULE_EXIT(prx_exit);
@@ -9,13 +12,52 @@ void* if_proxy_func[4] = { if_init, if_start, if_stop, if_exit };
 
 void prxmb_if_action(const char* action)
 {
-	if(prxmb_running())
+	// Load PRXMB addons and call action handlers
+	bool handled = false;
+	int fd;
+
+	if(cellFsOpendir(ADDON_DIR, &fd) == 0)
 	{
-		prxmb_action_call(action);
+		CellFsDirent dirent;
+		uint64_t nread;
+
+		char* filename = malloc(0x420 * sizeof(char));
+
+		while(!handled && cellFsReaddir(fd, &dirent, &nread) == 0 && nread > 0)
+		{
+			// Load addon using COBRA
+			sprintf(filename, ADDON_DIR "/%s", dirent.d_name);
+
+			char* filename_ext = strrchr(filename, '.');
+
+			if(filename_ext != NULL && strcmp(filename_ext, ".sprx") == 0)
+			{
+				int ret = cobra_load_vsh_plugin(0, filename, NULL, 0);
+
+				if(ret == 0 && prxmb_addon_running())
+				{
+					// call function
+					handled = prxmb_addon_action_call(action);
+					cobra_unload_vsh_plugin(0);
+				}
+			}
+		}
+
+		free(filename);
+
+		cellFsClosedir(fd);
 	}
-	else
+
+	if(!handled)
 	{
-		vshtask_notify("Error: PRXMB is not running.");
+		if(prxmb_running())
+		{
+			prxmb_action_call(action);
+		}
+		else
+		{
+			vshtask_notify("PRXMB is not running.");
+		}
 	}
 }
 

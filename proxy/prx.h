@@ -6,7 +6,7 @@
 
 #include "if.h"
 #include "vsh_exports.h"
-#include "../prxmb.h"
+#include "prxmb.h"
 
 void prxmb_if_action(const char* action);
 int prx_start(size_t args, void* argp);
