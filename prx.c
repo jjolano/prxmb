@@ -108,7 +108,14 @@ void prxmb_action_call(const char* action)
 
 		if(callback != NULL)
 		{
-			(*callback)(name, params);
+			if(params == NULL)
+			{
+				(*callback)(name, NULL);
+			}
+			else
+			{
+				(*callback)(name, params + 1);
+			}
 		}
 	}
 	else
