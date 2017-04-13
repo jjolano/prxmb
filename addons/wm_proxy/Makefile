@@ -14,21 +14,19 @@ include $(CELL_MK_DIR)/sdk.makedef.mk
 
 OBJS_DIR = .
 
-PPU_SRCS = $(wildcard cobra/*.c) $(wildcard util/*.c) $(wildcard *.c)
-PPU_PRX_TARGET = prxmb.prx
+PPU_SRCS = $(wildcard ../addon_base/*.c) $(wildcard *.c)
+PPU_PRX_TARGET = prxmb_wm_proxy.prx
 PPU_CFLAGS += -Wno-unused-parameter -ffunction-sections -fdata-sections -fno-builtin-printf
 
 PPU_PRX_LDFLAGS += -Wl,--strip-unused-data -nodefaultlibs
-PPU_PRX_LDLIBDIR += -Lvsh/lib -Laddons/addon_base
+PPU_PRX_LDLIBDIR += -L../../vsh/lib
 
 PPU_PRX_LDLIBS += -lfs_stub -lrtc_stub -lsyscall
 PPU_PRX_LDLIBS += -lallocator_export_stub -lstdc_export_stub -lsysPrxForUser_export_stub \
 			-lvshtask_export_stub -lsys_net_export_stub
 
-PPU_PRX_LDLIBS += -lprxmb_addon_prx
-
 PPU_OPTIMIZE_LV = -Os
-PPU_INCDIRS += -I. -Iinclude -Ivsh/include
+PPU_INCDIRS += -I. -I../addon_base -I../../ -I../../include -I../../vsh/include
 
 all: $(PPU_PRX_TARGET)
 	$(PPU_PRX_STRIP) --strip-debug --strip-section-header $<

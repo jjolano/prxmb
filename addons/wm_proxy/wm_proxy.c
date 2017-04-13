@@ -1,12 +1,33 @@
 // webMAN/webMAN MOD compatibility module for PRXMB
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "vsh_exports.h"
+#include "addon.h"
 #include "wm_proxy.h"
 #include "types.h"
+
+bool str_startswith(const char* str, const char* sub)
+{
+	return strncmp(str, sub, strlen(sub)) == 0;
+}
+
+bool prxmb_addon_action_call(const char* action)
+{
+	// wm_proxy compatibility
+	if(str_startswith(action, "/") || strcmp(action, "sman") == 0)
+	{
+		// pass control to wm_proxy
+		wm_plugin_action(action);
+		return true;
+	}
+
+	if(str_startswith(action, "http://127.0.0.1/"))
+	{
+		// pass control to wm_proxy
+		wm_plugin_action(action + 16);
+		return true;
+	}
+
+	return false;
+}
 
 void wm_plugin_action(const char* action)
 {

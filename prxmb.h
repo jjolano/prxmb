@@ -10,6 +10,7 @@
  */
 #define VSHMODULE_SPRX		"/dev_flash/vsh/module/idle_plugin.sprx"
 #define PRXMB_PROXY_SPRX	"/dev_hdd0/tmp/prxmb_proxy.sprx"
+#define ADDON_DIR			"/dev_hdd0/tmp/prxmb"
 
 #define MAX_ACT_NAMELEN		32
 
@@ -36,6 +37,12 @@ void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN]);
  * and parameter data (if necessary) separated by a space.
  */
 void prxmb_action_call(const char* action);
+
+/*
+ * Addon function.
+ * Return true if action was handled, false otherwise.
+ */
+extern bool prxmb_addon_action_call(const char* action);
 
 #ifdef __cplusplus
 }

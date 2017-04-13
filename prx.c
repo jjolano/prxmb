@@ -1,8 +1,7 @@
 #include "prx.h"
 #include "pftutils.h"
+#include "cobra/cobra.h"
 #include "cobra/storage.h"
-
-#include "addons/wm_proxy/wm_proxy.h"
 
 SYS_MODULE_START(prx_start);
 SYS_MODULE_STOP(prx_stop);
@@ -24,11 +23,6 @@ bool file_exists(const char* path)
 {
 	CellFsStat st;
 	return cellFsStat(path, &st) == 0;
-}
-
-bool str_startswith(const char* str, const char* sub)
-{
-	return strncmp(str, sub, strlen(sub)) == 0;
 }
 
 int prxmb_action_hook(const char name[MAX_ACT_NAMELEN], action_callback callback)
@@ -59,18 +53,46 @@ void prxmb_action_unhook(const char name[MAX_ACT_NAMELEN])
 
 void prxmb_action_call(const char* action)
 {
-	// wm_proxy compatibility
-	if(str_startswith(action, "/") || strcmp(action, "sman") == 0)
+	// Load PRXMB addons and call action handlers
+	bool handled = false;
+	int fd;
+
+	if(cellFsOpendir(ADDON_DIR, &fd) == 0)
 	{
-		// pass control to wm_proxy
-		wm_plugin_action(action);
-		return;
+		CellFsDirent dirent;
+		uint64_t nread;
+
+		while(cellFsReaddir(fd, &dirent, &nread) == 0 && nread > 0)
+		{
+			// Load addon using COBRA
+			char filename[0x420];
+			sprintf(filename, ADDON_DIR "/%s", dirent.d_name);
+
+			char* filename_ext = strrchr(filename, '.');
+
+			if(filename_ext != NULL && strcmp(filename_ext, ".sprx") == 0)
+			{
+				int ret = cobra_load_vsh_plugin(0, filename, NULL, 0);
+
+				if(ret == 0)
+				{
+					// call function
+					if(prxmb_addon_action_call(action))
+					{
+						handled = true;
+						break;
+					}
+
+					cobra_unload_vsh_plugin(0);
+				}
+			}
+		}
+
+		cellFsClosedir(fd);
 	}
 
-	if(str_startswith(action, "http://127.0.0.1/"))
+	if(handled)
 	{
-		// pass control to wm_proxy
-		wm_plugin_action(action + 16);
 		return;
 	}
 
