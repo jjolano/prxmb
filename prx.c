@@ -62,10 +62,11 @@ void prxmb_action_call(const char* action)
 		CellFsDirent dirent;
 		uint64_t nread;
 
-		while(cellFsReaddir(fd, &dirent, &nread) == 0 && nread > 0)
+		char* filename = malloc(0x420 * sizeof(char));
+
+		while(!handled && cellFsReaddir(fd, &dirent, &nread) == 0 && nread > 0)
 		{
 			// Load addon using COBRA
-			char filename[0x420];
 			sprintf(filename, ADDON_DIR "/%s", dirent.d_name);
 
 			char* filename_ext = strrchr(filename, '.');
@@ -74,19 +75,20 @@ void prxmb_action_call(const char* action)
 			{
 				int ret = cobra_load_vsh_plugin(0, filename, NULL, 0);
 
-				if(ret == 0)
+				if(ret == 0 && prxmb_addon_running())
 				{
 					// call function
 					if(prxmb_addon_action_call(action))
 					{
 						handled = true;
-						break;
 					}
 
 					cobra_unload_vsh_plugin(0);
 				}
 			}
 		}
+
+		free(filename);
 
 		cellFsClosedir(fd);
 	}

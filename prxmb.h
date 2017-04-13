@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #define prxmb_running() (sys_prx_get_module_id_by_name("PRXMB", 0, NULL) > 0)
+#define prxmb_addon_running() (sys_prx_get_module_id_by_name("PRXMB_ADDON", 0, NULL) > 0)
 
 /*
  * It is imperative that these settings are in agreement among developers.
