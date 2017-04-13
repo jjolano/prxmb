@@ -56,7 +56,7 @@ void prxmb_if_action(const char* action)
 		}
 		else
 		{
-			vshtask_notify("PRXMB is not running.");
+			vshtask_notify("No PRXMB handlers available.");
 		}
 	}
 }
