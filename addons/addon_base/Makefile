@@ -21,9 +21,7 @@ PPU_CFLAGS += -Wno-unused-parameter -ffunction-sections -fdata-sections -fno-bui
 PPU_PRX_LDFLAGS += -Wl,--strip-unused-data -nodefaultlibs
 PPU_PRX_LDLIBDIR += -L../../vsh/lib
 
-PPU_PRX_LDLIBS += -lfs_stub -lrtc_stub -lsyscall
-PPU_PRX_LDLIBS += -lallocator_export_stub -lstdc_export_stub -lsysPrxForUser_export_stub \
-			-lvshtask_export_stub -lsys_net_export_stub
+PPU_PRX_LDLIBS += -lsysPrxForUser_export_stub
 
 PPU_OPTIMIZE_LV = -Os
 PPU_INCDIRS += -I. -I../../ -I../../include -I../../vsh/include
