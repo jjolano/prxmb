@@ -77,11 +77,7 @@ void prxmb_action_call(const char* action)
 				if(ret == 0 && prxmb_addon_running())
 				{
 					// call function
-					if(prxmb_addon_action_call(action))
-					{
-						handled = true;
-					}
-
+					handled = prxmb_addon_action_call(action);
 					cobra_unload_vsh_plugin(0);
 				}
 			}
