@@ -9,7 +9,7 @@
 /*
  * It is imperative that these settings are in agreement among developers.
  */
-#define VSHMODULE_SPRX		"/dev_flash/vsh/module/idle_plugin.sprx"
+#define VSHMODULE_SPRX		"/dev_flash/vsh/module/xai_plugin.sprx"
 #define PRXMB_PROXY_SPRX	"/dev_hdd0/tmp/prxmb_proxy.sprx"
 #define ADDON_DIR			"/dev_hdd0/tmp/prxmb"
 
